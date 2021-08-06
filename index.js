@@ -131,17 +131,19 @@ function getMyScore(author, channel) {
 
 function getHiScores(channel) {
     fs.readFile('registeredUsers.json', 'utf8' , (err, json) => {
-        const topThree = [0, 0, 0];
         let users = JSON.parse(json);
-        for(let user of users){
-            let score = user.pts;
-            for(let topScore of topThree){
-                if(score > topScore){
-                    topScore = score;
-                }
-            }
+
+        let scores = [];
+        users.forEach(user => {
+            scores.push({ key: user, value: user.pts});
+        });
+
+        scores.sort((a, b) => scores[b] - scores[a]);
+
+        channel.send(`HiScores:`);
+        for(let i = o; i < scores.length; ++i){
+            channel.send(`${i} : ${scores.username} with ${scores.pts} points`);
         }
-        channel.send(`HiScores: ${topThree}`);
     });
 }
 
