@@ -11,7 +11,7 @@ const { strict } = require('assert');
 const client = new Discord.Client();
 
 const judges = ['830158540051578920'];
-
+const commands = ['!cmd', '!tasks', '!rules', '!register', '!players', '!highscores', '!add name points (like !add Luna 10000) ', '!sub name points (like !sub Luna 10000)'];
 client.on('ready', () => {
   console.log('I am ready!');
 });
@@ -25,7 +25,14 @@ client.on('message', message => {
 function checkMessage(message) {
     let body = message.content;
     if(body[0] == '!'){
-        let command = body.substring(1,);
+        let command = body.substring(1,).split(' ')[0];
+        let nameAndPoints = body.substring(command.length +1);
+        
+        //Some magic shit
+        
+        let points = nameAndPoints.replace( /^\D+/g, '');
+        let name = nameAndPoints.substring(1, nameAndPoints.length - (points.length+1)).toLowerCase();
+
         switch (command) {
             case 'cmd': 
                 sendCommandsList(message.channel);
@@ -50,13 +57,13 @@ function checkMessage(message) {
                 break;
             case 'add':
                 if(judges.includes(message.author.id)){
-                    addPoints(message.channel, message.author.id);
+                    addPoints(message.channel, name, points);
                     break;
                 }
                 break;
             case 'sub':
                 if(judges.includes(message.author.id)){
-                    subtractPoints(message.channel, message.author.id);
+                    subtractPoints(message.channel, name, points);
                     break;
                 }
                 break;
@@ -65,7 +72,8 @@ function checkMessage(message) {
 };
 
 function sendCommandsList(channel){
-    channel.send('Commands are: !rules, !tasks, !register, !players, !myscore');
+    let commandsWhitespace = commands.join(', ');
+    channel.send(`Commands are: ${ commandsWhitespace }`);
 }
 
 function sendTaskList(channel){
@@ -131,79 +139,90 @@ function getMyScore(author, channel) {
 
 function getHiScores(channel) {
     fs.readFile('registeredUsers.json', 'utf8' , (err, json) => {
-        const topThree = [0, 0, 0];
         let users = JSON.parse(json);
-        for(let user of users){
-            let score = user.pts;
-            for(let topScore of topThree){
-                if(score > topScore){
-                    topScore = score;
-                }
+
+        let scores = [];
+
+        users.forEach(user => {
+            scores.push({ key: user.username, value: user.pts});
+        });
+
+        scores.sort((a, b) => parseInt(b.value) - parseInt(a.value));
+
+        let hiscores = scores.slice(0,3);
+
+        var message = "Highscores for the 2021 Luna 'coke can dick' bingo event: \n";
+        for(let i = 1; i <= 3; i++){
+            let emoji = "";
+            if(i == 1)
+                emoji = "\:first_place:";
+            else if (i == 2)
+                emoji = "\:second_place:";
+            else
+                emoji  = "\:third_place:";
+            message += `${emoji} ${hiscores[i-1].key} with ${hiscores[i-1].value} points \n`;
+        }
+
+        channel.send(message);
+
+    });
+}
+
+function isNumeric(n) {
+    return !isNaN(parseFloat(n)) && isFinite(n);
+}
+
+function addPoints(channel, name, points){
+    if(!isNumeric(points)){
+        channel.send(`Enter a valid number`);
+        return;
+    }
+
+    fs.readFile('registeredUsers.json', 'utf8', (err, json) => {
+        var userFound = false;
+
+        let users = JSON.parse(json);
+        for (let user of users) {
+            if (user.username.toLowerCase() === name) {
+                userFound = true;
+                user.pts += parseInt(points);
+                channel.send(`${user.username} now has ${user.pts} pts.`);
+                fs.writeFile('registeredUsers.json', JSON.stringify(users), function (err) {
+                    if (err) throw err;
+                    console.log('Saved!');
+                });
             }
         }
-        channel.send(`HiScores: ${topThree}`);
+
+        if(!userFound)
+            channel.send(`No user found with name ${name}.`);
     });
 }
 
-function addPoints(channel, id){
-    let filter = m => m.author.id === id
-    channel.send(`Who to add and how many pts?`).then(() => {
-      channel.awaitMessages(filter, {
-          max: 1,
-          time: 30000,
-          errors: ['time']
-        })
-        .then(message => {
-          message = message.first();
-          let answer = message.content.split(' - ');
-          fs.readFile('registeredUsers.json', 'utf8' , (err, json) => {
-            let users = JSON.parse(json);
-            for(let user of users){
-                if(user.username === answer[0]){
-                    user.pts += parseInt(answer[1]);
-                    channel.send(`${user.username} now has ${user.pts} pts.`);
-                    fs.writeFile('registeredUsers.json', JSON.stringify(users), function (err) {
-                        if (err) throw err;
-                        console.log('Saved!');
-                    });
-                }
-                }
-            })  
-        })
-        .catch(collected => {
-            message.channel.send('Timeout');
-        });
-    });
-}
+function subtractPoints(channel, name, points){
+    if(!isNumeric(points)){
+        channel.send(`Enter a valid number`);
+        return;
+    }
 
-function subtractPoints(channel, id){
-    let filter = m => m.author.id === id
-    channel.send(`Who to subtract and how many pts?`).then(() => {
-      channel.awaitMessages(filter, {
-          max: 1,
-          time: 30000,
-          errors: ['time']
-        })
-        .then(message => {
-          message = message.first();
-          let answer = message.content.split(' - ');
-          fs.readFile('registeredUsers.json', 'utf8' , (err, json) => {
-            let users = JSON.parse(json);
-            for(let user of users){
-                if(user.username === answer[0]){
-                    user.pts -= parseInt(answer[1]);
-                    channel.send(`${user.username} now has ${user.pts} pts.`);
-                    fs.writeFile('registeredUsers.json', JSON.stringify(users), function (err) {
-                        if (err) throw err;
-                        console.log('Saved!');
-                    });
-                }
-                }
-            })  
-        })
-        .catch(collected => {
-            message.channel.send('Timeout');
-        });
+    fs.readFile('registeredUsers.json', 'utf8', (err, json) => {
+        var userFound = false;
+
+        let users = JSON.parse(json);
+        for (let user of users) {
+            if (user.username.toLowerCase() === name) {
+                userFound = true;
+                user.pts -= parseInt(points);
+                channel.send(`${user.username} now has ${user.pts} pts.`);
+                fs.writeFile('registeredUsers.json', JSON.stringify(users), function (err) {
+                    if (err){ console.log(err); throw err };
+                    console.log('Saved!');
+                });
+            }
+        }
+
+        if(!userFound)
+            channel.send(`No user found with name ${name}.`);
     });
 }
 
