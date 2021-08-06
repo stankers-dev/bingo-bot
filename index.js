@@ -87,21 +87,26 @@ function sendRulesList(channel){
 // register user to notepad file
 // format is unique id - nickname - starting pts
 function registerUser(author, channel){
-    fs.readFile('registeredUsers.txt', 'utf8' , (err, data) => {
+    fs.readFile('registeredUsers.json', 'utf8' , (err, json) => {
         let userAlreadyRegistered = false;
-        let users = data.split('\n');
-        users = users.slice(0, users.length-1);
+        let users = JSON.parse(json);
         for(let user of users){
-            if(user.includes(author.id)){
+            if(user.id === author.id){
                 userAlreadyRegistered = true;
-                break;
+                console.log('already regged');
             }
         }
         if(!userAlreadyRegistered) {
-            fs.appendFile('registeredUsers.txt', author.id + ' - ' + author.username + ' - 0 \n', function (err) {
+            let newUser = {
+                'id': author.id,
+                'username': author.username,
+                'pts': 0
+            };
+            users.push(newUser);
+            fs.writeFile('registeredUsers.json', JSON.stringify(users), function (err) {
                 if (err) throw err;
                 console.log('Saved!');
-                channel.send(`${author.username} registered for bingo!`);
+                channel.send(`${newUser.username} registered for bingo!`);
             });
         }
     });
@@ -109,40 +114,35 @@ function registerUser(author, channel){
 
 // get the list of players
 function getPlayers(channel){
-    fs.readFile('registeredUsers.txt', 'utf8' , (err, data) => {
-        let users = data.split('\n');
-        users = users.slice(0, users.length-1);
-        let players = '';
+    fs.readFile('registeredUsers.json', 'utf8' , (err, json) => {
+        let users = JSON.parse(json);
+        let curPlayers = '';
         for(let user of users){
-            players += user.split(' - ')[1] + ', ';
+            curPlayers += `${user.username}, `;
         }
-        players = players.slice(0, players.length - 2);
-        channel.send(`Current Bingo Players: ${players}`);
+        curPlayers = curPlayers.slice(0, curPlayers.length-2);
+        console.log(curPlayers);
     });
 }
 
-// doesnt work yet idk
+// return ur current score
 function getMyScore(author, channel) {
-    fs.readFile('registeredUsers.txt', 'utf8' , (err, data) => {
-        let users = data.split('\n');
-        users = users.slice(0, users.length-1);
+    fs.readFile('registeredUsers.json', 'utf8' , (err, json) => {
+        let users = JSON.parse(json);
         for(let user of users){
-            if(user.includes(author.id)){
-                let score = user.split(' - ')[2];
-                channel.send(`${author.username}: ${score}`);
+            if(user.id == author.id) {
+                console.log(`Your current score is ${user.pts}`);
             }
         }
     });
 }
 
-// doesnt work yet idk
 function getHiScores(channel) {
-    fs.readFile('registeredUsers.txt', 'utf8' , (err, data) => {
+    fs.readFile('registeredUsers.json', 'utf8' , (err, json) => {
         const topThree = [0, 0, 0];
-        let users = data.split('\n');
-        users = users.slice(0, users.length-1);
+        let users = JSON.parse(json);
         for(let user of users){
-            let score = user.split(' - ')[1];
+            let score = user.pts;
             for(let topScore of topThree){
                 if(score > topScore){
                     topScore = score;
