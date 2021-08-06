@@ -26,8 +26,13 @@ function checkMessage(message) {
     let body = message.content;
     if(body[0] == '!'){
         let command = body.substring(1,).split(' ')[0];
-        let name = body.substring(1,).split(' ')[1];
-        let points = body.substring(1,).split(' ')[2];
+        let nameAndPoints = body.substring(command.length +1);
+        
+        //Some magic shit
+        
+        let points = nameAndPoints.replace( /^\D+/g, '');
+        let name = nameAndPoints.substring(1, nameAndPoints.length - (points.length+1));
+
         switch (command) {
             case 'cmd': 
                 sendCommandsList(message.channel);
@@ -178,7 +183,7 @@ function addPoints(channel, name, points){
 
         let users = JSON.parse(json);
         for (let user of users) {
-            if (user.username === name) {
+            if (user.username.toLowerCase() === name) {
                 userFound = true;
                 user.pts += parseInt(points);
                 channel.send(`${user.username} now has ${user.pts} pts.`);
