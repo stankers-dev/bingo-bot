@@ -1,2 +1,2 @@
-registeredUsers
-.envs
+.env
+registeredUsers.txt
