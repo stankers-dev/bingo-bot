@@ -31,7 +31,7 @@ function checkMessage(message) {
         //Some magic shit
         
         let points = nameAndPoints.replace( /^\D+/g, '');
-        let name = nameAndPoints.substring(1, nameAndPoints.length - (points.length+1));
+        let name = nameAndPoints.substring(1, nameAndPoints.length - (points.length+1)).toLowerCase();
 
         switch (command) {
             case 'cmd': 
@@ -210,7 +210,7 @@ function subtractPoints(channel, name, points){
 
         let users = JSON.parse(json);
         for (let user of users) {
-            if (user.username === name) {
+            if (user.username.toLowerCase() === name) {
                 userFound = true;
                 user.pts -= parseInt(points);
                 channel.send(`${user.username} now has ${user.pts} pts.`);
