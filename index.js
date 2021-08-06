@@ -28,12 +28,12 @@ function checkMessage(message) {
     let body = message.content;
     if(body[0] == '!'){
         let command = body.substring(1,).split(' ')[0];
-        let nameAndPoints = body.substring(command.length +1);
+        let nameAndPoints = body.substring(command.length +1).trim();
         
         //Some magic shit
-        
-        let points = nameAndPoints.replace( /^\D+/g, '');
-        let name = nameAndPoints.substring(1, nameAndPoints.length - (points.length+1)).toLowerCase();
+        let name = nameAndPoints.substring(nameAndPoints.indexOf('[') + 1, nameAndPoints.indexOf(']'));
+
+        let points = nameAndPoints.slice(name.length + 2);
 
         switch (command) {
             case 'cmd': 
