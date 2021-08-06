@@ -134,16 +134,20 @@ function getHiScores(channel) {
         let users = JSON.parse(json);
 
         let scores = [];
+
         users.forEach(user => {
-            scores.push({ key: user, value: user.pts});
+            scores.push({ key: user.username, value: user.pts});
         });
 
-        scores.sort((a, b) => scores[b] - scores[a]);
+        scores.sort((a, b) => parseInt(b.value) - parseInt(a.value));
+
+        let hiscores = scores.slice(0,3);
 
         channel.send(`HiScores:`);
-        for(let i = o; i < scores.length; ++i){
-            channel.send(`${i} : ${scores.username} with ${scores.pts} points`);
+        for(let hiscore of hiscores){
+            channel.send(`${hiscore.key} with ${hiscore.value} points`);
         }
+
     });
 }
 
