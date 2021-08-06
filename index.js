@@ -10,6 +10,8 @@ const { strict } = require('assert');
 
 const client = new Discord.Client();
 
+const judges = ['830158540051578920'];
+
 client.on('ready', () => {
   console.log('I am ready!');
 });
@@ -43,14 +45,20 @@ function checkMessage(message) {
             case 'myscore': 
                 getMyScore(message.author, message.channel);
                 break;
-            // case 'hiscores': 
-            //     getHiScores(message.channel);
-            //     break;
+            case 'hiscores': 
+                getHiScores(message.channel);
+                break;
             case 'add':
-                addPoints(message.channel, message.author.id);
+                if(!judges.includes(message.author.id)){
+                    addPoints(message.channel, message.author.id);
+                    break;
+                }
                 break;
             case 'sub':
-                subtractPoints(message.channel, message.author.id);
+                if(!judges.includes(message.author.id)){
+                    subtractPoints(message.channel, message.author.id);
+                    break;
+                }
                 break;
         }
     }
