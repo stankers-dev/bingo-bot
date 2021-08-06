@@ -1,6 +1,7 @@
 'use strict';
 
 require('dotenv').config();
+var http = require('http');
 
 const apiKey = process.env.DISCORD_BOT_KEY;
 var fs = require('fs');
@@ -21,6 +22,7 @@ client.on('message', message => {
         checkMessage(message);
     };
 });
+
 
 function checkMessage(message) {
     let body = message.content;
@@ -228,3 +230,6 @@ function subtractPoints(channel, name, points){
 
 // Log our bot in using the token from https://discord.com/developers/applications
 client.login(apiKey);
+http.createServer(function (request, response) {
+    console.log('Listening on port %d', server_port);
+}).listen(process.env.PORT || 5000);
