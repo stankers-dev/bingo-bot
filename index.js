@@ -51,17 +51,17 @@ function checkMessage(message) {
                 getHiScores(message.channel);
                 break;
             case 'add':
-                //if(judges.includes(message.author.id)){
+                if(judges.includes(message.author.id)){
                     addPoints(message.channel, name, points);
                     break;
-                //}
-                //break;
+                }
+                break;
             case 'sub':
-                //if(judges.includes(message.author.id)){
+                if(judges.includes(message.author.id)){
                     subtractPoints(message.channel, name, points);
                     break;
-                //}
-                //break;
+                }
+                break;
         }
     }
 };
