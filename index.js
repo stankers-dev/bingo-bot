@@ -146,10 +146,19 @@ function getHiScores(channel) {
 
         let hiscores = scores.slice(0,3);
 
-        channel.send(`HiScores:`);
-        for(let hiscore of hiscores){
-            channel.send(`${hiscore.key} with ${hiscore.value} points`);
+        var message = "Highscores for the 2021 Luna 'coke can dick' bingo event: \n";
+        for(let i = 1; i <= 3; i++){
+            let emoji = "";
+            if(i == 1)
+                emoji = "\:first_place:";
+            else if (i == 2)
+                emoji = "\:second_place:";
+            else
+                emoji  = "\:third_place:";
+            message += `${emoji} ${hiscores[i-1].key} with ${hiscores[i-1].value} points \n`;
         }
+
+        channel.send(message);
 
     });
 }
