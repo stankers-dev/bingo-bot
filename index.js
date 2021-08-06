@@ -11,7 +11,7 @@ const { strict } = require('assert');
 const client = new Discord.Client();
 
 const judges = ['830158540051578920'];
-const commands = ['!cmd', '!tasks', '!rules', '!register', '!players', '!highscores', '!add', '!sub'];
+const commands = ['!cmd', '!tasks', '!rules', '!register', '!players', '!highscores', '!add name points (like !add Luna 10000) ', '!sub name points (like !sub Luna 10000)'];
 client.on('ready', () => {
   console.log('I am ready!');
 });
