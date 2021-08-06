@@ -46,12 +46,12 @@ function checkMessage(message) {
             // case 'hiscores': 
             //     getHiScores(message.channel);
             //     break;
-            // case 'add':
-            //     addPoints(message.channel, message.author.id);
-            //     break;
-            // case 'sub':
-            //     subtractPoints(message.channel);
-            //     break;
+            case 'add':
+                addPoints(message.channel, message.author.id);
+                break;
+            case 'sub':
+                subtractPoints(message.channel, message.author.id);
+                break;
         }
     }
 };
@@ -138,11 +138,65 @@ function getHiScores(channel) {
 }
 
 function addPoints(channel, id){
-   // implement this
+    let filter = m => m.author.id === id
+    channel.send(`Who to add and how many pts?`).then(() => {
+      channel.awaitMessages(filter, {
+          max: 1,
+          time: 30000,
+          errors: ['time']
+        })
+        .then(message => {
+          message = message.first();
+          let answer = message.content.split(' - ');
+          fs.readFile('registeredUsers.json', 'utf8' , (err, json) => {
+            let users = JSON.parse(json);
+            for(let user of users){
+                if(user.username === answer[0]){
+                    user.pts += parseInt(answer[1]);
+                    channel.send(`${user.username} now has ${user.pts} pts.`);
+                    fs.writeFile('registeredUsers.json', JSON.stringify(users), function (err) {
+                        if (err) throw err;
+                        console.log('Saved!');
+                    });
+                }
+                }
+            })  
+        })
+        .catch(collected => {
+            message.channel.send('Timeout');
+        });
+    });
 }
 
-function subtractPoints(user, pts){
-    // subtract pts
+function subtractPoints(channel, id){
+    let filter = m => m.author.id === id
+    channel.send(`Who to subtract and how many pts?`).then(() => {
+      channel.awaitMessages(filter, {
+          max: 1,
+          time: 30000,
+          errors: ['time']
+        })
+        .then(message => {
+          message = message.first();
+          let answer = message.content.split(' - ');
+          fs.readFile('registeredUsers.json', 'utf8' , (err, json) => {
+            let users = JSON.parse(json);
+            for(let user of users){
+                if(user.username === answer[0]){
+                    user.pts -= parseInt(answer[1]);
+                    channel.send(`${user.username} now has ${user.pts} pts.`);
+                    fs.writeFile('registeredUsers.json', JSON.stringify(users), function (err) {
+                        if (err) throw err;
+                        console.log('Saved!');
+                    });
+                }
+                }
+            })  
+        })
+        .catch(collected => {
+            message.channel.send('Timeout');
+        });
+    });
 }
 
 // Log our bot in using the token from https://discord.com/developers/applications
