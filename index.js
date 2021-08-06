@@ -2,39 +2,28 @@
 
 require('dotenv').config();
 
-// gonna need ur own api key
 const apiKey = process.env.DISCORD_BOT_KEY;
 var fs = require('fs');
 
-// libs
 const Discord = require('discord.js');
 const { strict } = require('assert');
 
-// this
 const client = new Discord.Client();
 
-// startup
 client.on('ready', () => {
   console.log('I am ready!');
 });
 
-// did we get a msg
 client.on('message', message => {
     if (message.channel.name === 'osrs-bingo') {
         checkMessage(message);
     };
 });
 
-// whats on the msg
 function checkMessage(message) {
     let body = message.content;
-    // all msgs start w/ this
     if(body[0] == '!'){
         let command = body.substring(1,);
-        // query commands
-        // all commands are 1:1 string matched
-        // add/sub a little weird cuz of that
-        // feel free to expand this
         switch (command) {
             case 'cmd': 
                 sendCommandsList(message.channel);
@@ -54,32 +43,27 @@ function checkMessage(message) {
             case 'myscore': 
                 getMyScore(message.author, message.channel);
                 break;
-            case 'hiscores': 
-                getHiScores(message.channel);
-                break;
-            // apparently u can regex these but it makes u gay irl idk
-            case 'add':
-                addPoints(message.channel, message.author.id);
-                break;
-            case 'sub':
-                subtractPoints(message.channel);
-                break;
+            // case 'hiscores': 
+            //     getHiScores(message.channel);
+            //     break;
+            // case 'add':
+            //     addPoints(message.channel, message.author.id);
+            //     break;
+            // case 'sub':
+            //     subtractPoints(message.channel);
+            //     break;
         }
     }
 };
 
-// cmd list
-// update as u add new cmds
 function sendCommandsList(channel){
-    channel.send('Commands are: !rules, !tasks, !register, !myscore, !hiscores, [admin] !add {username} {pts}, [admin] !sub {username} {pts}');
+    channel.send('Commands are: !rules, !tasks, !register, !players, !myscore');
 }
 
-// tasks img
 function sendTaskList(channel){
     channel.send('Task List:', { files: ["./bingo1.png"] });
 }
 
-// rules img
 function sendRulesList(channel){
     channel.send('Rules:', { files: ["./rules.png"] });
 }
@@ -121,7 +105,7 @@ function getPlayers(channel){
             curPlayers += `${user.username}, `;
         }
         curPlayers = curPlayers.slice(0, curPlayers.length-2);
-        console.log(curPlayers);
+        channel.send(`Current Players: ${curPlayers}`);
     });
 }
 
@@ -131,7 +115,7 @@ function getMyScore(author, channel) {
         let users = JSON.parse(json);
         for(let user of users){
             if(user.id == author.id) {
-                console.log(`Your current score is ${user.pts}`);
+                channel.send(`${user.username} : ${user.pts} Points`);
             }
         }
     });
@@ -153,9 +137,8 @@ function getHiScores(channel) {
     });
 }
 
-// doesnt work yet idk
 function addPoints(channel, id){
-    // have fun
+   // implement this
 }
 
 function subtractPoints(user, pts){
