@@ -49,13 +49,13 @@ function checkMessage(message) {
                 getHiScores(message.channel);
                 break;
             case 'add':
-                if(!judges.includes(message.author.id)){
+                if(judges.includes(message.author.id)){
                     addPoints(message.channel, message.author.id);
                     break;
                 }
                 break;
             case 'sub':
-                if(!judges.includes(message.author.id)){
+                if(judges.includes(message.author.id)){
                     subtractPoints(message.channel, message.author.id);
                     break;
                 }
