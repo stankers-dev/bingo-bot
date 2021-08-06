@@ -231,5 +231,5 @@ function subtractPoints(channel, name, points){
 // Log our bot in using the token from https://discord.com/developers/applications
 client.login(apiKey);
 http.createServer(function (request, response) {
-    console.log('Listening on port %d', server_port);
+    console.log('Listening on port %d', process.env.PORT);
 }).listen(process.env.PORT || 5000);
