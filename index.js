@@ -160,7 +160,10 @@ function getPlayers(channel) {
 
 function getTeams(channel) {
     fs.readFile('registeredTeams.json', 'utf8', (err, json) => {
-        let teams = JSON.parse(json);
+        let teams = [];
+
+        if(json)            
+         teams = JSON.parse(json);
         let curTeams = '';
 
         for (let team of teams) {
