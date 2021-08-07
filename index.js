@@ -13,7 +13,7 @@ const { create } = require('domain');
 const client = new Discord.Client();
 
 const judges = ['300270511559278592', '719976670454349844'];
-const commands = ['!cmd', '!tasks', '!rules', '!register', '!players', '!highscores', '!drawteam', '!deleteteam teamid (like !deleteteam 123412312312)','!addteammember [name] teamid (like !addteammember [Luna] 123412321323', '!add [name] points (like !add [Luna] 10000) ', '!sub [name] points (like !sub [Luna] 10000)'];
+const commands = ['!cmd', '!tasks', '!rules', '!register', '!players', '!highscores', '!drawteam', '!deleteteam teamid (like !deleteteam 123412312312)', '!addteammember [name] teamid (like !addteammember [Luna] 123412321323', '!add [name] points (like !add [Luna] 10000) ', '!sub [name] points (like !sub [Luna] 10000)'];
 client.on('ready', () => {
     console.log('I am ready!');
 });
@@ -65,13 +65,22 @@ function checkMessage(message) {
                 renameTeamname(message.channel, message.author, nameAndPoints);
                 break;
             case 'drawteam':
-                drawTeam(message.channel);
+                if (judges.includes(message.author.id)) {
+                    drawTeam(message.channel);
+                    break;
+                }
                 break;
             case 'addteammember':
-                addUserToTeam(message.channel, name, points);
+                if (judges.includes(message.author.id)) {
+                    addUserToTeam(message.channel, name, points);
+                    break;
+                }
                 break;
             case 'deleteteam':
-                deleteTeam(message.channel, nameAndPoints);
+                if (judges.includes(message.author.id)) {
+                    deleteTeam(message.channel, nameAndPoints);
+                    break;
+                }
                 break;
             case 'add':
                 if (judges.includes(message.author.id)) {
@@ -227,7 +236,7 @@ function addUserToTeam(channel, username, teamid) {
     });
 }
 
-function deleteTeam(channel, teamid){
+function deleteTeam(channel, teamid) {
     let team = {};
     var fileTeams = fs.readFileSync('registeredTeams.json', 'utf8');
     let teamFound = false;
@@ -327,7 +336,7 @@ function createTeam(channel, player1, player2) {
         let newTeam = {
             'teamid': player1.id,
             'teamname': "noteamnameset",
-            'points' : 0,
+            'points': 0,
             'users': [{
                 'id': player1.id,
                 'username': player1.username
