@@ -13,7 +13,7 @@ const { create } = require('domain');
 const client = new Discord.Client();
 
 const judges = ['300270511559278592', '719976670454349844'];
-const commands = ['!cmd', '!tasks', '!rules', '!register', '!players', '!highscores', '!teams', '!rename teamname (like !rename dreamteam)','!drawteam', '!deleteteam teamid (like !deleteteam 123412312312)', '!addteammember [name] teamid (like !addteammember [Luna] 123412321323', '!add [name] points (like !add [Luna] 10000) ', '!sub [name] points (like !sub [Luna] 10000)'];
+const commands = ['!cmd', '!tasks', '!rules', '!register', '!players', '!highscores', '!teams', '!rename teamname (like !rename dreamteam)', '!drawteam', '!deleteteam teamid (like !deleteteam 123412312312)', '!addteammember [name] teamid (like !addteammember [Luna] 123412321323', '!removeteammember [name] teamid (like !addteammember [Luna] 123412321323', '!add [name] points (like !add [Luna] 10000) ', '!sub [name] points (like !sub [Luna] 10000)'];
 client.on('ready', () => {
     console.log('I am ready!');
 });
@@ -73,6 +73,12 @@ function checkMessage(message) {
             case 'addteammember':
                 if (judges.includes(message.author.id)) {
                     addUserToTeam(message.channel, name, points);
+                    break;
+                }
+                break;
+            case 'removeteammember':
+                if (judges.includes(message.author.id)) {
+                    removeUserFromTeam(message.channel, name, points);
                     break;
                 }
                 break;
@@ -176,7 +182,7 @@ function addUserToTeam(channel, username, teamid) {
     teamid = teamid.replace(' ', '');
 
     let player = {};
-    let team = {};
+    let teamX = {};
 
     var fileTeams = fs.readFileSync('registeredTeams.json', 'utf8');
     let teamFound = false;
@@ -185,7 +191,7 @@ function addUserToTeam(channel, username, teamid) {
         teamNames.forEach(teamName => {
             if (teamName.teamid === teamid) {
                 teamFound = true;
-                team = teamName;
+                teamX = teamName;
             }
         });
     }
@@ -215,8 +221,7 @@ function addUserToTeam(channel, username, teamid) {
         let teams = JSON.parse(json);
         let userFound = false;
         for (let team of teams) {
-            for (let i = 0; i < team.users.length; i++) {
-
+            if (team.teamid === teamX.teamid) {
                 let newMember = {
                     'id': player.id,
                     'username': player.username
@@ -229,7 +234,68 @@ function addUserToTeam(channel, username, teamid) {
                     channel.send(`Added teammember '${player.username}' to '${team.teamname}'`);
                 });
                 return;
+            }
+        }
 
+    });
+}
+
+function removeUserFromTeam(channel, username, teamid) {
+    teamid = teamid.replace(' ', '');
+
+    let player = {};
+    let teamX = {};
+
+    var fileTeams = fs.readFileSync('registeredTeams.json', 'utf8');
+    let teamFound = false;
+    if (fileTeams) {
+        var teamNames = JSON.parse(fileTeams);
+        teamNames.forEach(teamName => {
+            if (teamName.teamid === teamid) {
+                teamFound = true;
+                teamX = teamName;
+            }
+        });
+    }
+    if (!teamFound) {
+        channel.send(`No team found with id ${teamid}`);
+        return;
+    }
+
+    let fileUsers = fs.readFileSync('registeredUsers.json', 'utf8');
+    let playerFound = false;
+    if (fileUsers) {
+        var users = JSON.parse(fileUsers);
+        users.forEach(user => {
+            if (user.username === username) {
+                playerFound = true;
+                player = user;
+            }
+
+        });
+    }
+    if (!playerFound) {
+        channel.send(`No user found with name ${user}`);
+        return;
+    }
+
+    fs.readFile('registeredTeams.json', 'utf8', (err, json) => {
+        let teams = JSON.parse(json);
+        let userFound = false;
+        for (let team of teams) {
+            if (team.teamid === teamX.teamid) {
+                for (let [i, user] of team.users.entries()) {
+                    if (user.username == player.username) {
+                        team.users.splice(i, 1);
+                    }
+                }
+
+                fs.writeFile('registeredTeams.json', JSON.stringify(teams), function (err) {
+                    if (err) throw err;
+                    console.log('Saved!');
+                    channel.send(`Removed teammember '${player.username}' from '${team.teamname}'`);
+                });
+                return;
             }
         }
 
