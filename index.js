@@ -13,7 +13,7 @@ const { create } = require('domain');
 const client = new Discord.Client();
 
 const judges = ['300270511559278592', '719976670454349844'];
-const commands = ['!cmd', '!tasks', '!rules', '!register', '!players', '!highscores', '!drawteam', '!deleteteam teamid (like !deleteteam 123412312312)', '!addteammember [name] teamid (like !addteammember [Luna] 123412321323', '!add [name] points (like !add [Luna] 10000) ', '!sub [name] points (like !sub [Luna] 10000)'];
+const commands = ['!cmd', '!tasks', '!rules', '!register', '!players', '!highscores', '!teams', '!rename teamname (like !rename dreamteam)','!drawteam', '!deleteteam teamid (like !deleteteam 123412312312)', '!addteammember [name] teamid (like !addteammember [Luna] 123412321323', '!add [name] points (like !add [Luna] 10000) ', '!sub [name] points (like !sub [Luna] 10000)'];
 client.on('ready', () => {
     console.log('I am ready!');
 });
@@ -99,7 +99,7 @@ function checkMessage(message) {
 };
 
 function sendCommandsList(channel) {
-    let commandsWhitespace = commands.join(', ');
+    let commandsWhitespace = commands.join('\n');
     channel.send(`Commands are: ${commandsWhitespace}`);
 }
 
