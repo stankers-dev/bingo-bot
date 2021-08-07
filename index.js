@@ -216,7 +216,7 @@ function addUserToTeam(channel, username, teamid) {
         });
     }
     if (!playerFound) {
-        channel.send(`No user found with name ${user}`);
+        channel.send(`No user found with name ${username}`);
         return;
     }
 
@@ -278,7 +278,7 @@ function removeUserFromTeam(channel, username, teamid) {
         });
     }
     if (!playerFound) {
-        channel.send(`No user found with name ${user}`);
+        channel.send(`No user found with name ${username}`);
         return;
     }
 
